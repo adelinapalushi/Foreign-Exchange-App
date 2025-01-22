@@ -1,5 +1,7 @@
 package com.forexapp.forexapplication.service;
 
+import com.forexapp.forexapplication.dto.ExchangeRateRequest;
+import com.forexapp.forexapplication.dto.ExchangeRateResponse;
 import com.forexapp.forexapplication.exception.InternalCustomException;
 import com.forexapp.forexapplication.repository.ExchangeRateRepository;
 import com.forexapp.forexapplication.response.ErrorArgument;
@@ -16,6 +18,8 @@ import java.util.Map;
 
 @Service
 public class ExchangeRateService {
+
+    private static final String API_URL = "https://api.exchangerate-api.com/v4/latest/{base}";
     private final ExchangeRateRepository exchangeRateRepository;
 
     public ExchangeRateService(ExchangeRateRepository exchangeRateRepository) {
@@ -88,9 +92,26 @@ public class ExchangeRateService {
         } else if (rateObject instanceof BigDecimal) {
             rate = (BigDecimal) rateObject;
         } else {
-            throw new IllegalArgumentException("Unexpected rate type: " + rateObject.getClass());
+            throw new InternalCustomException(ErrorCodes.ERRORS_UNEXPECTED_RATE_TYPE,
+                  null);
         }
 
         return rate;
+    }
+
+
+    public ExchangeRateResponse getExchangeRates(String baseCurrency) {
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(API_URL, ExchangeRateResponse.class, baseCurrency);
+    }
+
+    public double convertCurrency(ExchangeRateRequest request) {
+        ExchangeRateResponse rates = getExchangeRates(request.getFromCurrency());
+        Double rate = rates.getRates().get(request.getToCurrency());
+        if (rate == null) {
+            throw new InternalCustomException(ErrorCodes.ERRORS_INVALID_TARGET_CURRENCY,
+                    null);
+        }
+        return request.getAmount() * rate;
     }
 }

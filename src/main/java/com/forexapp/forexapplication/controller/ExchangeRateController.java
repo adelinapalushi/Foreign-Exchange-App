@@ -1,9 +1,6 @@
 package com.forexapp.forexapplication.controller;
 
-import com.forexapp.forexapplication.dto.ConversionHistoryRequest;
-import com.forexapp.forexapplication.dto.ConversionHistoryResponse;
-import com.forexapp.forexapplication.dto.CurrencyConversionRequest;
-import com.forexapp.forexapplication.dto.CurrencyConversionResponse;
+import com.forexapp.forexapplication.dto.*;
 import com.forexapp.forexapplication.exception.InternalCustomException;
 import com.forexapp.forexapplication.response.ErrorCodes;
 import com.forexapp.forexapplication.response.ResponseWrapper;
@@ -71,6 +68,40 @@ public class ExchangeRateController {
             List<ConversionHistoryResponse> history = currencyConversionService.getConversionHistory(request);
 
             return ResponseEntity.ok(ResponseWrapper.ok(history));
+        } catch (InternalCustomException e) {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.ok(ResponseWrapper.error(e.getErrorCode(), e.getErrorArguments()));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrapper.error(ErrorCodes.ERRORS_GENERAL_ERROR, null));
+        }
+    }
+
+    @GetMapping("/api/exchange-rates")
+    public ResponseEntity<?> getExchangeRates(@RequestParam String baseCurrency) {
+        try {
+            ExchangeRateResponse response = exchangeRateService.getExchangeRates(baseCurrency);
+            return ResponseEntity.ok(ResponseWrapper.ok(response));
+        } catch (InternalCustomException e) {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.ok(ResponseWrapper.error(e.getErrorCode(), e.getErrorArguments()));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrapper.error(ErrorCodes.ERRORS_GENERAL_ERROR, null));
+        }
+    }
+
+    @PostMapping("/api/exchange-convert")
+    public ResponseEntity<?> convertCurrency(@RequestBody ExchangeRateRequest request) {
+        try {
+            double response = exchangeRateService.convertCurrency(request);
+           return ResponseEntity.ok(ResponseWrapper.ok(response));
         } catch (InternalCustomException e) {
             logger.error(e.getMessage(), e);
 
