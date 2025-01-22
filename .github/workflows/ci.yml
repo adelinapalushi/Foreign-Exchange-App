@@ -1,5 +1,3 @@
-ECHO is on.
-name: Java CI
 
 on:
   push:
