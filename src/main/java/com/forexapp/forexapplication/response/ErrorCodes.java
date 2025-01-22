@@ -6,5 +6,6 @@ public class ErrorCodes {
     public static final String ERRORS_RATE_NOT_FOUND= "Exchange rate for target currency not found.";
     public static final String ERRORS_CURRENCY_NOT_SUPPORTED= "Currency is not supported";
     public static final String ERRORS_GENERAL_ERROR= "ERRORS_GENERAL_ERROR";
+    public static final String ERRORS_TRANSACTION_ID_NULL= "ERRORS_TRANSACTION_ID_NULL";
 
 }
