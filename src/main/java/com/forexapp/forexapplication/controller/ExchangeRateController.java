@@ -1,5 +1,7 @@
 package com.forexapp.forexapplication.controller;
 
+import com.forexapp.forexapplication.dto.ConversionHistoryRequest;
+import com.forexapp.forexapplication.dto.ConversionHistoryResponse;
 import com.forexapp.forexapplication.dto.CurrencyConversionRequest;
 import com.forexapp.forexapplication.dto.CurrencyConversionResponse;
 import com.forexapp.forexapplication.exception.InternalCustomException;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 public class ExchangeRateController {
@@ -24,7 +27,7 @@ public class ExchangeRateController {
 
     public ExchangeRateController(ExchangeRateService exchangeRateService, CurrencyConversionService currencyConversionService) {
         this.exchangeRateService = exchangeRateService;
-        this.currencyConversionService= currencyConversionService;
+        this.currencyConversionService = currencyConversionService;
     }
 
     @GetMapping("/api/exchange-rate")
@@ -47,17 +50,36 @@ public class ExchangeRateController {
     @PostMapping("/api/currency-conversion")
     public ResponseEntity<?> convertCurrency(@RequestBody CurrencyConversionRequest request) {
         try {
-        CurrencyConversionResponse response = currencyConversionService.convert(request.getAmount(), request.getSourceCurrency(), request.getTargetCurrency());
-        return ResponseEntity.ok(ResponseWrapper.ok(response));
-    } catch (InternalCustomException e) {
-        logger.error(e.getMessage(), e);
+            CurrencyConversionResponse response = currencyConversionService.convert(request.getAmount(), request.getSourceCurrency(), request.getTargetCurrency());
+            return ResponseEntity.ok(ResponseWrapper.ok(response));
+        } catch (InternalCustomException e) {
+            logger.error(e.getMessage(), e);
 
-        return ResponseEntity.ok(ResponseWrapper.error(e.getErrorCode(), e.getErrorArguments()));
-    } catch (Exception e) {
-        logger.error(e.getMessage(), e);
+            return ResponseEntity.ok(ResponseWrapper.error(e.getErrorCode(), e.getErrorArguments()));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseWrapper.error(ErrorCodes.ERRORS_GENERAL_ERROR, null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrapper.error(ErrorCodes.ERRORS_GENERAL_ERROR, null));
+        }
+    }
+
+    @PostMapping("/api/conversion-history")
+    public ResponseEntity<?> getConversionHistory(@RequestBody ConversionHistoryRequest request) {
+        try {
+
+            List<ConversionHistoryResponse> history = currencyConversionService.getConversionHistory(request);
+
+            return ResponseEntity.ok(ResponseWrapper.ok(history));
+        } catch (InternalCustomException e) {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.ok(ResponseWrapper.error(e.getErrorCode(), e.getErrorArguments()));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrapper.error(ErrorCodes.ERRORS_GENERAL_ERROR, null));
         }
     }
 }
