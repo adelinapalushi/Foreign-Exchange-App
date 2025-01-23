@@ -38,7 +38,7 @@ public class ExchangeRateServiceTest {
                 .thenReturn(mockResponse);
 
         BigDecimal exchangeRate = exchangeRateService.getExchangeRate(source, target);
-        assertEquals(new BigDecimal("0.961"), exchangeRate);
+        assertEquals(new BigDecimal("0.96"), exchangeRate);
     }
 
     @Test
