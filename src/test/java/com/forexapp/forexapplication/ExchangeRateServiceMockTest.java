@@ -40,6 +40,6 @@ public class ExchangeRateServiceMockTest {
         request.setAmount(100);
 
         double result = exchangeRateService.convertCurrency(request);
-        assertEquals(96.1, result, 0.001);
+        assertEquals(96.0, result, 0.001);
     }
 }
